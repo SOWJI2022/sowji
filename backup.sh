@@ -1,6 +1,6 @@
 #!/bin/bash
-source_file="F:/my-docker-sample/test2/names.txt"
-destination_dir="F:/my-docker-sample/backup"
+source_file="/var/lib/jenkins/workspace/sowji1/names.txt"
+destination_dir="/var/lib/jenkins/workspace/sowji1/backup"
 timestamp=$(date +"%Y-%m-%d_%H.%M.%S")
 mkdir -p "$destination_dir"
 backup_file="$destination_dir/backup_names_${timestamp}.txt"
