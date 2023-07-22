@@ -1,0 +1,54 @@
+pipeline{
+    agent any
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = 'my-docker'
+        DOCKER_IMG_NAME = 'sowji2022/pipeline'
+        DOCKER_IMG_TAG = "latest-${env.BUILD_NUMBER}"
+        GIT_URL = 'https://github.com/SOWJI2022/sowji.git'
+    }
+    stages{
+        stage('git clone'){
+            steps{
+                git url: "${GIT_URL}", branch: 'main'
+            }
+        }
+        stage('docker build stage'){
+            steps{
+                script{
+                docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS){
+                     sh "docker build -t ${DOCKER_IMG_NAME}:${DOCKER_IMG_TAG} ."}
+                    }
+                }
+        }
+        stage('docker push stage'){
+            steps{
+                script{
+                docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS){
+                    sh "docker push ${DOCKER_IMG_NAME}:${DOCKER_IMG_TAG}"}
+                }
+            }
+        }
+        stage('Clean Up Local Image') {
+            steps {
+                script {
+                    sh "docker rmi ${DOCKER_IMG_NAME}:${DOCKER_IMG_TAG}"
+                }
+            }
+        }
+        stage('pull image') {
+            steps {
+                script {
+                    sh "docker pull ${DOCKER_IMG_NAME}:${DOCKER_IMG_TAG}"
+                }
+            }
+        }
+        stage('run a container') {
+            steps {
+                script {
+                    sh "docker run -d --name pipelinecontainer --rm ${DOCKER_IMG_NAME}:${DOCKER_IMG_TAG}"
+                }
+            }
+        }
+    }
+}
